@@ -1,28 +1,14 @@
 import csv
 import os
-import input
 from datetime import datetime
-from pathlib import Path
+
+import input
 
 path_csv = r'note_app.csv'
 
 
-# def csv_is_exist():
-#     if not os.path.exists('/note_app.csv'):
-#         Path('note_app.csv').touch()
-
-
-def csv_check():
-    if os.path.getsize(path_csv) == 0:
-        with open(path_csv, 'a', encoding='utf-8') as data:
-            file_writer = csv.writer(data, delimiter=";", lineterminator="\r")
-            file_writer.writerow(["Дата", "Заголовок", "Текст"])
-    else:
-        return
-
-
 def add_note(info):
-    new_list = info.split()
+    new_list = info.split(',')
     now = datetime.now().strftime('%Y %m %d %H %M %S')
     with open(path_csv, 'a', encoding='utf-8') as data:
         file_writer = csv.writer(data, delimiter=";", lineterminator="\r")
@@ -48,9 +34,13 @@ def find_date(date):
             if date in row[0]:
                 print(str(num) + ')', '{:<20} {:<20} {:<20}'.format(*row))
                 num += 1
+        if num == 1:
+            print('Заметок с выбранной датой не обнаружено')
+
 
 def delete_note(name):
     new_list = []
+    count = 0
     with open(path_csv, 'r', encoding='utf-8') as data:
         file_reader = csv.reader(data, delimiter=";", lineterminator="\r")
         for row in file_reader:
@@ -58,9 +48,18 @@ def delete_note(name):
     for item in new_list:
         if name in item:
             new_list.remove(item)
-    with open(path_csv, 'w', encoding='utf-8') as data:
-        file_writer = csv.writer(data, delimiter=";", lineterminator="\r")
-        file_writer.writerows(new_list)
+            count += 1
+    if count == 0:
+        print('Заметок с таким заголовком не оказалось')
+        return -1
+    else:
+        with open(path_csv, 'w', encoding='utf-8') as data:
+            file_writer = csv.writer(data, delimiter=";", lineterminator="\r")
+            file_writer.writerows(new_list)
 
-def edit_note(name):
-    return
+
+def change_note(name):
+    if delete_note(name) == -1:
+        return
+    else:
+        add_note(input.input_change_note())
